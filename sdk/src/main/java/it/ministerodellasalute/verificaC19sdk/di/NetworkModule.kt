@@ -82,7 +82,7 @@ object NetworkModule {
         val httpClient = getUnsafeOkHttpClient(cache).apply {
             addInterceptor(HeaderInterceptor())
         }
-        addLogging(httpClient)
+        addCertificateSHA(httpClient)
 
         return httpClient.build()
     }
@@ -164,15 +164,13 @@ object NetworkModule {
 
     /**
      *
-     * This method adds the [HttpLoggingInterceptor] to the passing [OkHttpClient.Builder].
+     * This method adds the [CertificatePinner.Builder] to the passing [OkHttpClient.Builder].
      *
      */
-    private fun addLogging(httpClient: OkHttpClient.Builder) {
-        if (BuildConfig.DEBUG) {
-            val logging = HttpLoggingInterceptor()
-            logging.level = HttpLoggingInterceptor.Level.BODY
-            httpClient.addInterceptor(logging)
-        }
+    private fun addCertificateSHA(httpClient: OkHttpClient.Builder) {
+        val certificatePinner = CertificatePinner.Builder()
+            .add(BuildConfig.SERVER_HOST, BuildConfig.CERTIFICATE_SHA)
+        httpClient.certificatePinner(certificatePinner.build())
     }
 
     /**
