@@ -71,6 +71,8 @@ interface Preferences {
 
     var isTotemModeActive: Boolean
 
+    var isClockAligned: Boolean
+
     var isSizeOverThreshold: Boolean
 
     var isDrlSyncActive: Boolean
@@ -178,6 +180,8 @@ class PreferencesImpl(context: Context) : Preferences {
     )
 
     override var maxRetryNumber by IntPreference(preferences, PrefKeys.KEY_MAX_RETRY_NUM, 1)
+
+    override var isClockAligned by BooleanPreference(preferences, PrefKeys.KEY_CLOCK_ALIGNED, false)
 
     override fun clear() {
         preferences.value.edit().clear().apply()
