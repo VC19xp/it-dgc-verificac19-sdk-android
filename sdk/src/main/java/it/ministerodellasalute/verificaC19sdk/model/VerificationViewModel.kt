@@ -165,17 +165,6 @@ class VerificationViewModel @Inject constructor(
 
     fun getScanMode() = preferences.scanMode
 
-    fun setScanMode(value: String) =
-        run {
-            preferences.scanMode = value
-            _scanMode.value = value
-        }
-
-    fun getScanModeFlag() = preferences.hasScanModeBeenChosen
-
-    fun setScanModeFlag(value: Boolean) =
-        run { preferences.hasScanModeBeenChosen = value }
-
     /**
      *
      * This method checks if the SDK version is obsoleted; if not, the [decode] method is called.
