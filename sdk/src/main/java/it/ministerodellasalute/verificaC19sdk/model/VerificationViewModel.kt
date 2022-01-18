@@ -259,6 +259,10 @@ class VerificationViewModel @Inject constructor(
         }
     }
 
+    /**
+     * This method takes care of retrieving the [Exemption] from the json received
+     * by the Decoder library, and then returns it if present, otherwise it returns null.
+     */
     private fun extractExemption(
         decodeData: GreenCertificateData?
     ): Array<Exemption>? {
@@ -298,6 +302,10 @@ class VerificationViewModel @Inject constructor(
         return Gson().fromJson(jsonString, Array<Rule>::class.java)
     }
 
+    /**
+     * This method extracts the UCVI from an Exemption, Vaccine, Recovery or Test
+     * based on what was received.
+     */
     private fun extractUVCI(greenCertificate: GreenCertificate?, exemption: Exemption?): String {
         return when {
             exemption != null -> {
@@ -432,6 +440,10 @@ class VerificationViewModel @Inject constructor(
         return CertificateStatus.NOT_VALID
     }
 
+    /**
+     * This method checks the [Exemption] and returns a proper [CertificateStatus]
+     * after checking the validity start and end dates.
+     */
     private fun checkExemptions(
         it: List<Exemption>,
         scanMode: String
