@@ -42,8 +42,6 @@ import dgca.verifier.app.decoder.model.VerificationResult
 import dgca.verifier.app.decoder.prefixvalidation.PrefixValidationService
 import dgca.verifier.app.decoder.schema.SchemaValidator
 import dgca.verifier.app.decoder.toBase64
-import it.ministerodellasalute.verificaC19sdk.data.local.AppDatabase
-import it.ministerodellasalute.verificaC19sdk.data.local.Key
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import it.ministerodellasalute.verificaC19sdk.BuildConfig
@@ -60,8 +58,6 @@ import it.ministerodellasalute.verificaC19sdk.data.remote.model.Rule
 import it.ministerodellasalute.verificaC19sdk.di.DispatcherProvider
 import it.ministerodellasalute.verificaC19sdk.model.*
 import it.ministerodellasalute.verificaC19sdk.util.Utility
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import it.ministerodellasalute.verificaC19sdk.util.Utility.sha256
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,7 +67,6 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 import javax.inject.Inject
-import kotlin.properties.Delegates
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
 
@@ -93,8 +88,7 @@ class VerificationViewModel @Inject constructor(
     private val cborService: CborService,
     private val verifierRepository: VerifierRepository,
     private val preferences: Preferences,
-    private val dispatcherProvider: DispatcherProvider,
-    private val db: AppDatabase
+    private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     private val _certificate = MutableLiveData<CertificateViewBean?>()
@@ -102,12 +96,6 @@ class VerificationViewModel @Inject constructor(
 
     private val _inProgress = MutableLiveData<Boolean>()
     val inProgress: LiveData<Boolean> = _inProgress
-
-    var kidsCount by Delegates.notNull<Int>()
-    private var kidsList = mutableListOf<Key>()
-
-    private val _scanMode = MutableLiveData<String>()
-    val scanMode: LiveData<String> = _scanMode
 
     /**
      *
@@ -138,38 +126,6 @@ class VerificationViewModel @Inject constructor(
      */
     fun setTotemMode(value: Boolean) =
         run { preferences.isTotemModeActive = value }
-
-    fun nukeData() {
-        preferences.clear()
-        CoroutineScope(dispatcherProvider.getIO()).launch {
-            db.keyDao().deleteAll()
-        }
-    }
-
-    fun getResumeToken() = preferences.resumeToken
-
-    fun getDateLastFetch() = preferences.dateLastFetch
-
-    fun callGetValidationRules() = getValidationRules()
-
-    suspend fun getKidsCount(): Int {
-        coroutineScope {
-            launch(dispatcherProvider.getIO()) {
-                kidsCount = db.keyDao().getCount().toInt()
-            }
-        }
-        return kidsCount
-    }
-
-    suspend fun getAllKids(): List<Key> {
-        kidsList.clear()
-        coroutineScope {
-            launch(dispatcherProvider.getIO()) {
-                kidsList.addAll(db.keyDao().getAll().toMutableList())
-            }
-        }
-        return kidsList.toList()
-    }
 
     fun getScanMode() = preferences.scanMode
 

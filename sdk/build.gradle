@@ -106,7 +106,6 @@ android {
         }
 
         release {
-            buildConfigField "String", "SHOW_DEBUG_BUTTONS", "\"true\""
             buildConfigField "String", "BASE_URL", "\"https://get.dgc.gov.it/v1/dgc/\""
             buildConfigField "String", "SERVER_HOST", "\"get.dgc.gov.it\""
             buildConfigField "String", "CERTIFICATE_SHA", "\"sha256/7cZJIDPacG8FS3pq6Mvxg+7yBDM/VYc2alOcbVe/e74=\""

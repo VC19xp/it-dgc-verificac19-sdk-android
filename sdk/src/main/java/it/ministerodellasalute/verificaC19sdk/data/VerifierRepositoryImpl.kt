@@ -46,9 +46,6 @@ import it.ministerodellasalute.verificaC19sdk.di.DispatcherProvider
 import it.ministerodellasalute.verificaC19sdk.model.DebugInfoWrapper
 import it.ministerodellasalute.verificaC19sdk.model.ValidationRulesEnum
 import it.ministerodellasalute.verificaC19sdk.security.KeyStoreCryptor
-import okhttp3.Headers
-import okhttp3.ResponseBody
-import retrofit2.Response
 import it.ministerodellasalute.verificaC19sdk.util.ConversionUtility
 import retrofit2.HttpException
 import java.net.HttpURLConnection
@@ -97,12 +94,7 @@ class VerifierRepositoryImpl @Inject constructor(
             }
 
             fetchStatus.postValue(false)
-
-            if (preferences.isClockAligned == false) {
-                preferences.dateLastFetch = -1L
-            } else {
-                preferences.dateLastFetch = System.currentTimeMillis()
-            }
+            preferences.dateLastFetch = System.currentTimeMillis()
             return@execute true
         }
     }
@@ -110,13 +102,6 @@ class VerifierRepositoryImpl @Inject constructor(
     private suspend fun fetchValidationRules(): Boolean? {
         return execute {
             val response = apiService.getValidationRules()
-
-            val headers = response.headers()
-
-            if (checkClockAlignment(headers) == false) {
-                return@execute false
-            }
-
             val body = response.body() ?: run {
                 return@execute false
             }
@@ -149,13 +134,6 @@ class VerifierRepositoryImpl @Inject constructor(
         return execute {
 
             val response = apiService.getCertStatus()
-
-            val headers = response.headers()
-
-            if (checkClockAlignment(headers) == false) {
-                return@execute false
-            }
-
             val body = response.body() ?: run {
                 return@execute false
             }
@@ -218,17 +196,12 @@ class VerifierRepositoryImpl @Inject constructor(
             val tokenFormatted = if (resumeToken == -1L) "" else resumeToken.toString()
             val response = apiService.getCertUpdate(tokenFormatted)
 
-            val headers = response.headers()
-
-            if (checkClockAlignment(headers) == false) {
-                return@execute false
-            }
-
             if (!response.isSuccessful) {
                 return@execute false
             }
 
             if (response.isSuccessful && response.code() == HttpURLConnection.HTTP_OK) {
+                val headers = response.headers()
                 val responseKid = headers[HEADER_KID]
                 val newResumeToken = headers[HEADER_RESUME_TOKEN]
                 val responseStr =
@@ -248,22 +221,6 @@ class VerifierRepositoryImpl @Inject constructor(
                 }
             }
             return@execute true
-        }
-    }
-
-    private suspend fun checkClockAlignment(headers: Headers): Boolean? {
-        return execute {
-            preferences.isClockAligned = true
-
-            val responseClockSync = headers[HEADER_CLOCK_SYNC]
-
-            if (responseClockSync == "falso") {
-                preferences.isClockAligned = false
-                preferences.dateLastFetch = -1L
-                return@execute false
-            }
-
-        return@execute true
         }
     }
 
@@ -622,7 +579,6 @@ class VerifierRepositoryImpl @Inject constructor(
         const val REALM_NAME = "VerificaC19"
         const val HEADER_KID = "x-kid"
         const val HEADER_RESUME_TOKEN = "x-resume-token"
-        const val HEADER_CLOCK_SYNC = "x-clock-sync"
     }
 
 }

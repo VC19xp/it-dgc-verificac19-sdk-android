@@ -29,8 +29,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.io.IOException
-import kotlin.jvm.Throws
 
 private const val TAG = "BaseRepository"
 
