@@ -39,6 +39,7 @@ class ExemptionValidationStrategy : ValidationStrategy {
     override fun checkCertificate(certificateModel: CertificateModel, ruleSet: RuleSet): CertificateStatus {
         val exemption: Exemption = certificateModel.exemptions!!.last()
         val scanMode = certificateModel.scanMode
+        if (scanMode == ScanMode.ENTRY_ITALY) return CertificateStatus.NOT_VALID
 
         try {
             val startDate: LocalDate = exemption.certificateValidFrom.toLocalDate()
@@ -50,7 +51,7 @@ class ExemptionValidationStrategy : ValidationStrategy {
             }
             endDate?.let {
                 if (LocalDate.now().isAfter(endDate)) {
-                    return CertificateStatus.NOT_VALID
+                    return CertificateStatus.EXPIRED
                 }
             }
             return if (scanMode == ScanMode.BOOSTER) {
